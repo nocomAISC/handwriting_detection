@@ -1,1 +1,26 @@
+import pandas as pd 
+import numpy as np
+import os
 
+#import the training ,test and validation sets
+df_test = pd.read_csv("/kaggle/input/doctors-handwritten-prescription-bd-dataset/Doctor’s Handwritten Prescription BD dataset/Testing/testing_labels.csv")
+df_train= pd.read_csv("/kaggle/input/doctors-handwritten-prescription-bd-dataset/Doctor’s Handwritten Prescription BD dataset/Training/training_labels.csv")
+df_val = pd.read_csv("/kaggle/input/doctors-handwritten-prescription-bd-dataset/Doctor’s Handwritten Prescription BD dataset/Validation/validation_labels.csv")
+
+for element in df_train['IMAGE']:
+    abs_path = os.path.join(train_path, element)
+    image = load_img(abs_path, target_size=(64, 64)) ## this is the photo size
+    image_array = np.array(image, dtype='float32')/255.0 # notmalize between 0 and 1
+    train_image.append(image_array)
+
+for element in df_test['IMAGE']:
+    abs_path = os.path.join(test_path, element)
+    image = load_img(abs_path, target_size=(64, 64))
+    image_array = np.array(image, dtype='float32')/255.0
+    test_image.append(image_array)
+
+for element in df_val['IMAGE']:
+    abs_path = os.path.join(val_path, element)
+    image = load_img(abs_path, target_size=(64, 64))
+    image_array = np.array(image, dtype='float32')
+    val_image.append(image_array)
