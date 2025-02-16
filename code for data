@@ -1,26 +1,50 @@
-import pandas as pd 
+import pandas as pd
 import numpy as np
 import os
+import tensorflow
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
 
-#import the training ,test and validation sets
-df_test = pd.read_csv("/kaggle/input/doctors-handwritten-prescription-bd-dataset/Doctor’s Handwritten Prescription BD dataset/Testing/testing_labels.csv")
-df_train= pd.read_csv("/kaggle/input/doctors-handwritten-prescription-bd-dataset/Doctor’s Handwritten Prescription BD dataset/Training/training_labels.csv")
-df_val = pd.read_csv("/kaggle/input/doctors-handwritten-prescription-bd-dataset/Doctor’s Handwritten Prescription BD dataset/Validation/validation_labels.csv")
+train_Words = r"/Users/srinidheesivaraj/Desktop/DoctorsHandwrittenPrescription/Training/training_words"
+test_Words = r"/Users/srinidheesivaraj/Desktop/DoctorsHandwrittenPrescription/Testing/testing_words"
+val_Words = r"/Users/srinidheesivaraj/Desktop/DoctorsHandwrittenPrescription/Validation/validation_words"
 
-for element in df_train['IMAGE']:
-    abs_path = os.path.join(train_path, element)
-    image = load_img(abs_path, target_size=(64, 64)) ## this is the photo size
-    image_array = np.array(image, dtype='float32')/255.0 # notmalize between 0 and 1
-    train_image.append(image_array)
+from google.colab import drive
+drive.mount('/content/drive')
+#changed name of content drive with specific files
+trainLabels = pd.read_csv("/content/drive/MyDrive/DoctorsHandwrittenPrescription/Training/training_labels.csv")
+testLabels = pd.read_csv("/content/drive/MyDrive/DoctorsHandwrittenPrescription/Testing/testing_labels.csv")
+valLabels = pd.read_csv("/content/drive/MyDrive/DoctorsHandwrittenPrescription/Validation/validation_labels.csv")
 
-for element in df_test['IMAGE']:
-    abs_path = os.path.join(test_path, element)
-    image = load_img(abs_path, target_size=(64, 64))
-    image_array = np.array(image, dtype='float32')/255.0
-    test_image.append(image_array)
+trainImages = [f for f in os.listdir(train_Words) if os.path.isfile(os.path.join(train_Words, f)) and f.endswith('.png')]
+testImages = [f for f in os.listdir(test_Words) if os.path.isfile(os.path.join(test_Words, f)) and f.endswith('.png')]
+valImages = [f for f in os.listdir(val_Words) if os.path.isfile(os.path.join(val_Words, f)) and f.endswith('.png')]
 
-for element in df_val['IMAGE']:
-    abs_path = os.path.join(val_path, element)
-    image = load_img(abs_path, target_size=(64, 64))
-    image_array = np.array(image, dtype='float32')
-    val_image.append(image_array)
+x_train = []
+x_test = []
+x_val = []
+
+y_train = trainLabels.to_numpy()
+y_test = testLabels.to_numpy()
+y_val = valLabels.to_numpy()
+
+for trainLabels in os.listdir(train_Words):
+    file_path = os.path.join(train_Words, Training)
+    image = load_img(file_path, target_size=(64, 64)) ## this is the photo size
+    image_array = img_to_array(image, dtype='float32')/255.0 # notmalize between 0 and 1
+    x_train.append(image_array)
+
+for testLabels in os.listdir(testing_words):
+    file_path = os.path.join(testing_words, Testing)
+    image = load_img(file_path, target_size=(64, 64)) ## this is the photo size
+    image_array = img_to_array(image, dtype='float32')/255.0 # notmalize between 0 and 1
+    x_test.append(image_array)
+
+for valLabels in os.listdir(val_words):
+    file_path = os.path.join(val_words, Validation)
+    image = load_img(file_path, target_size=(64, 64)) ## this is the photo size
+    image_array = img_to_array(image, dtype='float32')/255.0 # notmalize between 0 and 1
+    x_val.append(image_array)
+
+x_train = np.array(x_train)
+x_test = np.array(x_test)
+x_val = np.array(x_val) 
