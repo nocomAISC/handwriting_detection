@@ -1,53 +1,54 @@
-import streamlit as st
-import os
-from tensorflow.keras.models import load_model
-from PIL import Image
+import pandas as pd
 import numpy as np
+import os
+import tensorflow
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
 
-# Check current working directory
-st.write(f"Current working directory: {os.getcwd()}")
+trainLabels = pd.read_csv("dataset/Training/training_labels.csv")
+trainLabels = trainLabels["MEDICINE_NAME"]
 
-# Load the model (ensure the correct path)
-try:
-    model = load_model('models/handwriting_model.h5')  # Update the path if necessary
-    st.write("Model loaded successfully!")
-except Exception as e:
-    st.error(f"Error loading model: {e}")
-    st.stop()
+testLabels = pd.read_csv("dataset/Testing/testing_labels.csv")
+testLabels = testLabels["MEDICINE_NAME"]
 
-# Function to process image for prediction
-def preprocess_image(image):
-    image = image.convert('L')  # Convert to grayscale
-    image = image.resize((128, 128))  # Resize to model input size (adjust if necessary)
-    image = np.array(image) / 255.0  # Normalize pixel values
-    image = np.expand_dims(image, axis=-1)  # Add channel dimension
-    image = np.expand_dims(image, axis=0)  # Add batch dimension
-    return image
+valLabels = pd.read_csv("dataset/Validation/validation_labels.csv")
+valLabels = valLabels["MEDICINE_NAME"]
 
-# Streamlit UI for uploading image
-st.title("Doctor's Handwriting Recognition")
+trainWords = "dataset/Training/training_words"
+testWords = "dataset/Testing/testing_words"
+valWords = "dataset/Validation/validation_words"
 
-uploaded_image = st.file_uploader("Upload an image of handwritten text", type="jpg")
+trainImages = [f for f in os.listdir(trainWords)]
+testImages = [f for f in os.listdir(testWords)]
+valImages = [f for f in os.listdir(valWords)]
 
-if uploaded_image is not None:
-    try:
-        # Display uploaded image
-        image = Image.open(uploaded_image)
-        st.image(image, caption="Uploaded Image", use_column_width=True)
+x_train = []
+x_test = []
+x_val = []
 
-        # Process the image
-        processed_image = preprocess_image(image)
-        st.write(f"Processed Image Shape: {processed_image.shape}")
+y_train = trainLabels.to_numpy()
+y_test = testLabels.to_numpy()
+y_val = valLabels.to_numpy()
 
-        # Predict using the model
-        prediction = model.predict(processed_image)
-        st.write(f"Prediction: {prediction}")  # Debugging line
-        
-        # Assuming the model returns a classification result
-        predicted_text = np.argmax(prediction, axis=1)  # Get the class with the highest probability
-        st.write(f"Predicted Text: {predicted_text}")
+for trainLabel in os.listdir(trainWords):
+    file_path = os.path.join(trainWords, trainLabel)
+    image = load_img(file_path, target_size=(64, 64)) ## this is the photo size
+    image_array = img_to_array(image, dtype='float32')/255.0 # notmalize between 0 and 1
+    x_train.append(image_array)
 
-    except Exception as e:
-        st.error(f"Error processing image or making prediction: {e}")
-else:
-    st.write("Please upload an image to start recognition.")
+for testLabel in os.listdir(testWords):
+    file_path = os.path.join(testWords, testLabel)
+    image = load_img(file_path, target_size=(64, 64)) ## this is the photo size
+    image_array = img_to_array(image, dtype='float32')/255.0 # notmalize between 0 and 1
+    x_test.append(image_array)
+
+for valLabel in os.listdir(valWords):
+    file_path = os.path.join(valWords, valLabel)
+    image = load_img(file_path, target_size=(64, 64)) ## this is the photo size
+    image_array = img_to_array(image, dtype='float32')/255.0 # notmalize between 0 and 1
+    x_val.append(image_array)
+
+x_train = np.array(x_train)
+x_test = np.array(x_test)
+x_val = np.array(x_val) 
+
+print(y_test)
