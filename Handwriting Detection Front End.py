@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-import tensorflow
+import tensorflow as tf
 from tensorflow.keras.preprocessing.image import img_to_array
 import pandas as pd
 import os
@@ -8,7 +8,7 @@ from PIL import Image
 
 def load_model():
     try:
-        model = tensorflow.keras.models.load_model("handwriting_model.h5")  # Load your trained model
+        model = tf.keras.models.load_model("models/handwriting_model.h5")  # Load your trained model
         return model
     except Exception as e:
         st.error(f"Error loading model: {e}")
@@ -30,7 +30,7 @@ uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png", "jpeg"])
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+    st.image(image, caption="Uploaded Image", use_container_width=True)
     
     model = load_model()
     if model:
