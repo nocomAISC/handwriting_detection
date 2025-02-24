@@ -1,0 +1,11 @@
+numpy
+pandas
+matplotlib
+opencv-python
+tensorflow
+torch
+transformers
+tqdm
+scikit-learn
+pytesseract
+Pillow
