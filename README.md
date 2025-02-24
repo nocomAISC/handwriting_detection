@@ -52,3 +52,4 @@ python data.py
 
 To train the model, run:
 python model.py
+# Handwriting-Detection-App
