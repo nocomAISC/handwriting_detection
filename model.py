@@ -3,9 +3,11 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import pickle
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from transformers import ViTFeatureExtractor, ViTForImageClassification
+
 
 class PrescriptionDataset(Dataset):
     def __init__(self, csv_path, img_dir, feature_extractor):
@@ -51,6 +53,8 @@ def eval_loop(model, data_loader, device):
             total += labels.size(0)
     return correct / total
 
+
+
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     feature_extractor = ViTFeatureExtractor.from_pretrained("google/vit-base-patch16-224-in21k")
@@ -82,3 +86,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
