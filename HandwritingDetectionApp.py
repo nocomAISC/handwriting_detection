@@ -16,54 +16,47 @@ label_dict = {
 
 @st.cache_resource
 def load_model():
-    """Loads and returns the trained model if available, else returns None."""
-    if not os.path.exists(MODEL_PATH):
-        return None
-    try:
-        return tf.keras.models.load_model(MODEL_PATH)
-    except Exception as e:
-        st.error(f"❌ Error loading model: {e}")
-        return None
+    if os.path.exists(MODEL_PATH):
+        try:
+            return tf.keras.models.load_model(MODEL_PATH)
+        except Exception as e:
+            st.error(f"❌ Error loading model: {e}")
+    return None
 
 def preprocess_image(image):
-    """Preprocesses an image for model prediction."""
-    img = np.array(image)  # Convert PIL image to numpy array
-    img = cv2.resize(img, (150, 150))
-    img = img.astype('float32') / 255.0
-    return np.expand_dims(img, axis=0)  # Add batch dimension
+    image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
+    image = cv2.resize(image, (128, 32)) / 255.0
+    return np.expand_dims(image, axis=[0, -1])
 
-def decode_prediction(prediction):
-    """Decodes model predictions into a readable string."""
-    return ''.join([CHAR_LIST[i] for i in np.argmax(prediction, axis=-1) if i < len(CHAR_LIST)]).strip()
+# Text Decoding
+def decode_prediction(prediction, char_list):
+    return ''.join([char_list[i] for i in np.argmax(prediction, axis=-1) if i < len(char_list)]).strip()
 
-# UI Components
+# UI Design
 st.title("✍️ Handwriting Recognition")
 st.write("Upload an image with handwritten text, and we'll extract it for you!")
 
+# Image Upload
 uploaded_file = st.file_uploader("📂 Upload an image", type=["jpg", "png", "jpeg"])
 
-# Load the model once
+# Load model
 model = load_model()
 
 if uploaded_file:
     try:
         image = Image.open(uploaded_file)
-        st.image(image, caption="🖼️ Uploaded Image", use_container_width=True)
+        st.image(image, caption="Uploaded Image", use_container_width=True)
 
         if model:
             try:
                 prediction = model.predict(preprocess_image(image))
-                predicted_text = decode_prediction(np.squeeze(prediction))
-                st.subheader(f"🔍 Predicted Text: `{predicted_text}`")
+                word = decode_prediction(np.squeeze(prediction), CHAR_LIST)
+                st.subheader(f"🔍 Predicted Word: `{word}`")
             except Exception as e:
-                st.error(f"⚠️ Error during prediction: {e}")
+                st.error(f"Error during prediction: {e}")
         else:
             extracted_text = pytesseract.image_to_string(image).strip()
             if extracted_text:
-                st.subheader(f"✅ Prescription Prediction: `{extracted_text}`")
-            else:
-                st.warning("❗ No text detected.")
+                st.subheader(f"✅ Prescription Result: `{extracted_text}`")
     except Exception as e:
-        st.error(f"⚠️ Error: Unable to process image. {e}")
-
-    
+        st.error(f"⚠️ Error: Unable to open image. Please upload a valid image file. {e}")
