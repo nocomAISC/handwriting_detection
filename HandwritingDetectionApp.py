@@ -24,10 +24,15 @@ def load_model():
     return None
 
 def preprocess_image(image):
-    image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
-    image = cv2.resize(image, (128, 32)) / 255.0
-    return np.expand_dims(image, axis=[0, -1])
+    image_path = "your_image.jpg"  # Make sure this is a valid image path
+    img = cv2.imread(image_path)
 
+    if img is None:
+        raise ValueError(f"Error: Unable to load image from {image_path}")
+
+    img = cv2.resize(img, (150, 150))
+    img = img.astype('float32') / 255.0
+    
 # Text Decoding
 def decode_prediction(prediction, char_list):
     return ''.join([char_list[i] for i in np.argmax(prediction, axis=-1) if i < len(char_list)]).strip()
